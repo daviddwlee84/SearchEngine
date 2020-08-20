@@ -10,6 +10,9 @@ git submodule update
 
 pip3 install -r requirments.txt
 pip3 install -r tools/Crawler/requirments.txt
+
+# this is necessary
+ln -s tools/Crawler/crawler crawler
 ```
 
 ---
