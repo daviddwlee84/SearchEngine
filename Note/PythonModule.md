@@ -22,3 +22,25 @@
 
 * [Structuring Your Project — The Hitchhiker's Guide to Python](https://docs.python-guide.org/writing/structure/)
 * [Using Git Submodule and Develop Mode to Manage Python Projects - Shun's Vineyard](https://shunsvineyard.info/2019/12/23/using-git-submodule-and-develop-mode-to-manage-python-projects/)
+
+## Dealing with formatting problem
+
+Sometimes the code like this, the formatter will force the `from mining.tfidf import TFIDF` to the top of the file, which will make our `sys.path.append` fail.
+
+```py
+import os
+
+curr_dir = os.path.dirname(os.path.abspath(__file__))
+
+if __name__ == "__main__":
+    import sys
+    sys.path.append(os.path.join(curr_dir, '..'))
+
+from mining.tfidf import TFIDF
+```
+
+Disable import sorting in VSCode
+
+* [visual studio code - Disable python import sorting in VSCode - Stack Overflow](https://stackoverflow.com/questions/54015604/disable-python-import-sorting-in-vscode/54016555)
+  * because I might need to import modules after append the path
+  * **Add `"python.formatting.autopep8Args": ["--ignore", "E402"]` in `settings.json` of VSCode**
