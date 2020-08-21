@@ -29,12 +29,15 @@
    * [jieba/extract_tags_idfpath.py at master · fxsjy/jieba](https://github.com/fxsjy/jieba/blob/master/test/extract_tags_idfpath.py)
    * [jieba/idf.txt.big at master · fxsjy/jieba](https://github.com/fxsjy/jieba/blob/master/extra_dict/idf.txt.big)
 3. Stop words
+   * exclude some uselesss words become keywords
+   * [jieba/extract_tags_stop_words.py at master · fxsjy/jieba](https://github.com/fxsjy/jieba/blob/master/test/extract_tags_stop_words.py)
+   * [jieba/stop_words.txt at master · fxsjy/jieba](https://github.com/fxsjy/jieba/blob/master/extra_dict/stop_words.txt)
 
 Jieba analysis
 
 * extract_tags
+  * [jieba/extract_tags.py at master · fxsjy/jieba](https://github.com/fxsjy/jieba/blob/master/test/extract_tags.py)
   * [jieba/extract_tags_with_weight.py at master · fxsjy/jieba](https://github.com/fxsjy/jieba/blob/master/test/extract_tags_with_weight.py)
-
 
 ## Resources
 

@@ -15,6 +15,7 @@ from mining.tfidf import TFIDF
 class KeywordExtractor(object):
     def __init__(self, idf_path: str = None,
                  user_dict_path: str = os.path.join(curr_dir, 'userdict.txt'),
+                 stop_words_path: str = os.path.join(curr_dir, 'stop_words.txt'),
                  default_method: str = 'jieba.extract_tags'):
         """
         Methods:
@@ -24,7 +25,12 @@ class KeywordExtractor(object):
         jieba.extract_tags: jieba's tfidf?!
         jieba.tfidf: jieba's tfidf
         """
-        jieba.load_userdict(user_dict_path)
+        if user_dict_path:
+            jieba.load_userdict(user_dict_path)
+        if idf_path:
+            analyse.set_idf_path(idf_path)
+        if stop_words_path:
+            analyse.set_stop_words(stop_words_path)
 
         self.default_method = default_method
         # TFIDF()
