@@ -96,15 +96,16 @@ class AnnoyIndexBuilder(object):
             elif granularity == 'paragraph':
                 for paragraph in parsed_struct:
                     paragraph_embedding = self.encoder.encode(paragraph)
-                    self.annoy_paragraph.add_item(index, paragraph_embedding)
+                    self.annoy_paragraph.add_item(
+                        self.paragraph_id, paragraph_embedding)
                     self.paragraph2articleid[self.paragraph_id] = index
                     self.paragraph_id += 1
             elif granularity == 'sentence':
                 for paragraph in parsed_struct:
                     for sentence in paragraph:
                         sentence_embedding = self.encoder.encode(sentence)
-                        self.annoy_paragraph.add_item(
-                            index, sentence_embedding)
+                        self.annoy_sentence.add_item(
+                            self.sentence_id, sentence_embedding)
                         self.sentence2articleid[self.sentence_id] = index
                         self.sentence_id += 1
 
@@ -115,6 +116,9 @@ class AnnoyIndexBuilder(object):
         self.annoy_sentence.build(tree_num)
 
     def save_index(self, annoy_dir: str = None):
+        """
+        TODO: Maybe save encoder model and metric in the json file as well?!
+        """
         if not annoy_dir:
             annoy_dir = curr_dir
 
