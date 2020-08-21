@@ -1,4 +1,6 @@
 jieba
 tqdm
+numpy
 torch
 transformers
+sentence-transformers
