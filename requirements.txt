@@ -1,2 +1,4 @@
 jieba
 tqdm
+torch
+transformers
