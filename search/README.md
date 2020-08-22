@@ -43,3 +43,10 @@ Using the [k-d tree](https://en.wikipedia.org/wiki/K-d_tree) in KNN
 * [UKPLab/sentence-transformers: Sentence Embeddings with BERT & XLNet](https://github.com/UKPLab/sentence-transformers)
 * [[1908.10084] Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks](https://arxiv.org/abs/1908.10084)
 * [[2004.09813] Making Monolingual Sentence Embeddings Multilingual using Knowledge Distillation](https://arxiv.org/abs/2004.09813)
+
+## Evaluation
+
+### NDCG (Normalized Discounted Cumulative Gain)
+
+* [Measure Search Relevance using NDCG - Know More | T/DG Blog - Digital Thoughts](https://blog.thedigitalgroup.com/measuring-search-relevance-using-ndcg#:~:text=Normalized%20Discounted%20Cumulative%20Gain%20%28NDCG,than%20irrelevant%20results%20%28cumulative%20gain%29)
+* [Discounted cumulative gain - Wikipedia](https://en.wikipedia.org/wiki/Discounted_cumulative_gain)

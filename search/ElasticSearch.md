@@ -3,17 +3,15 @@
 * [Elastic Stack: Elasticsearch, Kibana, Beats & Logstash | Elastic](https://www.elastic.co/elastic-stack)
 * [**Get Started with Elasticsearch, Kibana, and the Elastic Stack | Elastic**](https://www.elastic.co/start)
 
-GUI Interface
-
-* [Kibana: Explore, Visualize, Discover Data | Elastic](https://www.elastic.co/kibana)
-  * [bitnami/kibana - Docker Hub](https://hub.docker.com/r/bitnami/kibana/)
-  * `curl -sSL https://raw.githubusercontent.com/bitnami/bitnami-docker-kibana/master/docker-compose.yml > docker-compose.yml`
-  * `docker-compose up -d`
-
 Repository
 
 * [elastic/elasticsearch: Open Source, Distributed, RESTful Search Engine](https://github.com/elastic/elasticsearch)
   * [elastic/elasticsearch-docker: Official Elasticsearch Docker image (archived)](https://github.com/elastic/elasticsearch-docker)
+
+> Default Ports
+>
+> * Elastic Search: 9200 (main), 9300
+> * Kibana: 5601
 
 ## Install Client and Server
 
@@ -53,7 +51,32 @@ Submit a `_cat/nodes` request to see that the nodes are up and running
 curl -X GET "localhost:9200/_cat/nodes?v&pretty"
 ```
 
-> `curl -X GET "http://stcadmin-dgx-station-002/:9200/_cat/nodes?v&pretty"`
+> `curl -X GET "http://stcadmin-dgx-station-002:9200/_cat/nodes?v&pretty"`
+
+### GUI - Kibana
+
+* [Kibana: Explore, Visualize, Discover Data | Elastic](https://www.elastic.co/kibana)
+  * [bitnami/kibana - Docker Hub](https://hub.docker.com/r/bitnami/kibana/)
+
+Docker compose (this include the elastic search)
+
+1. `curl -sSL https://raw.githubusercontent.com/bitnami/bitnami-docker-kibana/master/docker-compose.yml > docker-compose.yml`
+2. `docker-compose up -d`
+
+Windows
+
+1. Download from https://www.elastic.co/start
+2. Unzip file
+3. Edit `config/kibana.yml` (if your elastic search is not run on your local)
+4. Run `bin/kibana.bat`
+5. Once you see the log like `log   [10:15:39.440] [info][listening] Server running at http://localhost:5601` then you're ready to go
+
+Ubuntu/Linux
+
+1. `wget https://artifacts.elastic.co/downloads/kibana/kibana-7.9.0-linux-x86_64.tar.gz`
+2. `tar xvzf kibana-7.9.0-linux-x86_64.tar.gz`
+3. Edit `config/kibana.yaml`
+4. Run `bin/kibana`
 
 ### Client
 
