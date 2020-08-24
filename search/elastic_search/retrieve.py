@@ -24,7 +24,10 @@ class ESAPIWrapper(object):
         self.es_index = index
 
     def get_idx(self, idx: int):
-        self.es.get(index=self.es_index, id=idx)
+        """
+        TODO: handle if idx is invalid
+        """
+        return self.es.get(index=self.es_index, id=idx)['_source']
 
     def get_all(self, print_all: bool = False, size: int = 10):
         """
