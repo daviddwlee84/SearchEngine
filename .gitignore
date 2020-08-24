@@ -1,6 +1,8 @@
 crawler
 search/annoy/*.ann
 search/annoy/*.json
+index/*.ann
+index/*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

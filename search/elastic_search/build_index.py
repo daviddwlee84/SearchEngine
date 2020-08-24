@@ -31,7 +31,7 @@ class ESIndexBuilder(object):
 
         # self.article_manager = ArticleManager()
 
-    def clear_old_indices(self):
+    def clear_old_index(self):
         """
         TODO: maybe sent a warning message
         """
@@ -49,16 +49,26 @@ class ESIndexBuilder(object):
             ...
         }
 
+        TODO: ElasticsearchDeprecationWarning: [types removal]
+        Specifying types in document index requests is deprecated,
+        use the typeless endpoints instead (/{index}/_doc/{id}, /{index}/_doc, or /{index}/_create/{id})
+
         https://www.elastic.co/guide/en/elasticsearch/reference/current/sql-data-types.html
         """
         # Remove unsupported data type
-        # types_to_skip = [dict]
-        # data = {key: value for key, value in article.items() if type(value)
-        #         not in types_to_skip}
-        data = article
+        types_to_skip = [pd.NaT]  # dict is okay for ES
+        data = {key: value
+                for key, value in article.items()
+                if type(value) not in types_to_skip and not pd.isna(value)}
+        # data = article
 
-        self.es.index(index=self.es_index, doc_type=doc_type,
-                      id=index, body=data)
+        try:
+            self.es.index(index=self.es_index, doc_type=doc_type,
+                          id=index, body=data)
+        except Exception as e:
+            # https://stackoverflow.com/questions/4690600/python-exception-message-capturing
+            print('Elastic search add index fail:', str(e))
+            # TypeError("Unable to serialize NaT (type: <class 'pandas._libs.tslibs.nattype.NaTType'>)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 from mining.keyword_extractor import KeywordExtractor
+from utils.tsv_loader import load_tsv
 import pandas as pd
 from tqdm import tqdm
 
@@ -19,7 +20,7 @@ class DataRefine(object):
             tqdm.pandas()
 
         self.ori_path = tsv_data
-        self.data = pd.read_csv(tsv_data, sep='\t')
+        self.data = load_tsv(tsv_data)
         self.columns = self.data.columns.copy()
         self.keyword_extractor = KeywordExtractor()
 
