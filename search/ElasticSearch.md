@@ -78,6 +78,8 @@ Ubuntu/Linux
 3. Edit `config/kibana.yaml`
 4. Run `bin/kibana`
 
+> http://stcadmin-dgx-station-002:5601
+
 ### Client
 
 Python
@@ -86,9 +88,35 @@ Python
 
 ## Create Index
 
+> * [What is an Elasticsearch Index? | Elastic Blog](https://www.elastic.co/blog/what-is-an-elasticsearch-index)
+>
+> An index is like a ‘database’ in a relational database. It has a mapping which defines multiple types.
+An index is a logical namespace which maps to one or more primary shards and can have zero or more replica shards.
+>
+> The easiest and most familiar layout clones what you would expect from a relational database. You can (very roughly) think of an index like a database.
+>
+> ```txt
+> MySQL => Databases => Tables => Columns/Rows
+> Elasticsearch => Indices => Types => Documents with Properties
+> ```
+
+* [Index API | Elasticsearch Reference [master] | Elastic](https://www.elastic.co/guide/en/elasticsearch/reference/master/docs-index_.html)
+* [Create index API | Elasticsearch Reference [7.9] | Elastic](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-create-index.html)
+* [`elasticsearch.Elasticsearch.index` - API Documentation — Elasticsearch 8.0.0 documentation](https://elasticsearch-py.readthedocs.io/en/master/api.html?highlight=index#elasticsearch.Elasticsearch.index)
 * [Built-in analyzer reference | Elasticsearch Reference [7.9] | Elastic](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html)
 * [Field data types | Elasticsearch Reference [7.9] | Elastic](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html)
-* [Create index API | Elasticsearch Reference [7.9] | Elastic](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-create-index.html)
+
+### Detail
+
+Index
+
+Type
+
+Document ID
+
+* [_id field | Elasticsearch Reference [7.9] | Elastic](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-id-field.html)
+
+Body
 
 ## Searching
 
