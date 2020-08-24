@@ -127,6 +127,10 @@ Body
 * [Similarity module | Elasticsearch Reference [7.9] | Elastic](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules-similarity.html)
 * [Fuzzy query | Elasticsearch Reference [7.9] | Elastic](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-fuzzy-query.html)
 
+## Multiple Queries
+
+* [Compound queries | Elasticsearch Reference [7.9] | Elastic](https://www.elastic.co/guide/en/elasticsearch/reference/current/compound-queries.html)
+
 ## Chinese
 
 Stop Words
