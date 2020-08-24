@@ -9,7 +9,7 @@ if __name__ == "__main__":
     import sys
     sys.path.append(os.path.join(curr_dir, '../..'))
 
-from search.annoy.sentence_embedding import get_encoder
+from search.annoy.representation import Encoder
 from utils.article_loader import ArticleManager
 
 
@@ -33,7 +33,7 @@ class AnnoyIndexBuilder(object):
         elif encoder_model == 'sent-transformer':
             self.emb_dim = 512
         self.encoder_model = encoder_model
-        self.encoder = get_encoder(model=encoder_model)
+        self.encoder = Encoder(encoder_model=encoder_model)
 
         self.article_manager = ArticleManager()
 
@@ -81,19 +81,26 @@ class AnnoyIndexBuilder(object):
         }
         TODO: maybe split text or use other algorithm to obtain
               embedding that is larger than model input size
+
+
+        TODO: Seperate logic of each granularity to independent function
+        TODO: for article and paragraph granularity, use other encoding method
+        (Remember to modify retrieve as well)
         """
-        title_embedding = self.encoder.encode(article['title'])
+        title_embedding = self.encoder.get_sentence_encoding(article['title'])
         self.annoy_title.add_item(index, title_embedding)
 
         for granularity in self.article_manager.granularities:
             parsed_struct = self.article_manager.parse(
                 article['content'], granularity)
             if granularity == 'article':
-                article_embedding = self.encoder.encode(parsed_struct)
+                article_embedding = self.encoder.get_article_encoding(
+                    parsed_struct)
                 self.annoy_article.add_item(index, article_embedding)
             elif granularity == 'paragraph':
                 for paragraph in parsed_struct:
-                    paragraph_embedding = self.encoder.encode(paragraph)
+                    paragraph_embedding = self.encoder.get_paragraph_encoding(
+                        paragraph)
                     self.annoy_paragraph.add_item(
                         self.paragraph_id, paragraph_embedding)
                     self.paragraph2articleid[self.paragraph_id] = index
@@ -101,7 +108,8 @@ class AnnoyIndexBuilder(object):
             elif granularity == 'sentence':
                 for paragraph in parsed_struct:
                     for sentence in paragraph:
-                        sentence_embedding = self.encoder.encode(sentence)
+                        sentence_embedding = self.encoder.get_sentence_encoding(
+                            sentence)
                         self.annoy_sentence.add_item(
                             self.sentence_id, sentence_embedding)
                         self.sentence2articleid[self.sentence_id] = index

@@ -110,6 +110,65 @@ def get_encoder(model: str = 'bert'):
         return SentenceTransformer('distiluse-base-multilingual-cased', device=device)
 
 
+class Encoder(object):
+    """
+    TODO: maybe return emb_dim when creating the object
+    https://stackoverflow.com/questions/2491819/how-to-return-a-value-from-init-in-python
+    use __new__()
+    """
+    def __init__(self, encoder_model: str = 'bert', data_type: str = 'numpy'):
+        assert encoder_model in ['bert', 'sent-transformer']
+
+        self.data_type = data_type  # TODO: unused yet (but this is default)
+
+        self.encoder_model = encoder_model
+        self.encoder = get_encoder(model=encoder_model)
+
+    def _average_sent_encoding(self, string: str):
+        """
+        TODO: mean sentence encoding
+        """
+        return self.get_sentence_encoding(string)
+
+    def _extractive_summarization_encoding(self, string: str):
+        """
+        TODO: encode TextRank sentences
+        """
+        return self.get_sentence_encoding(string)
+
+    def get_sentence_encoding(self, sentence: str):
+        return self.encoder.encode(sentence)
+
+    # ===== High level wrapper ===== #
+
+    def get_article_encoding(self, article: str):
+        """
+        TODO: finish _extractive_summarization_encoding
+        """
+        return self._extractive_summarization_encoding(article)
+
+    def get_paragraph_encoding(self, paragraph: str):
+        """
+        TODO: finish _average_sent_encoding
+        """
+        return self._average_sent_encoding(paragraph)
+
+    # ===== Even higher level wrapper ===== #
+
+    def get_encoding_by_granularity(self, string: str, granularity: str = 'sentence'):
+        """
+        Just a wrapper
+        """
+        if granularity == 'sentence':
+            return self.get_sentence_encoding(string)
+        elif granularity == 'paragraph':
+            return self.get_paragraph_encoding(string)
+        elif granularity == 'article':
+            return self.get_article_encoding(string)
+
+        assert False, 'Not a valid granularity'
+
+
 def _test_different_types():
     for string in ['測試一下', ['測試一下', '測個']]:
         for type_str in ['list', 'numpy', 'torch']:

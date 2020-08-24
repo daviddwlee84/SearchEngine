@@ -9,7 +9,7 @@ if __name__ == "__main__":
     import sys
     sys.path.append(os.path.join(curr_dir, '../..'))
 
-from search.annoy.sentence_embedding import get_encoder
+from search.annoy.representation import Encoder
 from utils.article_loader import ArticleManager
 
 
@@ -36,7 +36,7 @@ class AnnoyRetrieve(object):
         elif encoder_model == 'sent-transformer':
             self.emb_dim = 512
         self.encoder_model = encoder_model
-        self.encoder = get_encoder(model=encoder_model)
+        self.encoder = Encoder(encoder_model=encoder_model)
 
         self.article_manager = ArticleManager()
 
@@ -74,7 +74,7 @@ class AnnoyRetrieve(object):
     # ===== Query and Retrieve Index and Score ===== #
 
     def _retrieve_title(self, title: str, topk: int = 10) -> List[Tuple[int, float]]:
-        query_embedding = self.encoder.encode(title)
+        query_embedding = self.encoder.get_sentence_encoding(title)
         matches, distances = self.annoy_title.get_nns_by_vector(
             query_embedding, topk, include_distances=True)
         match_result = [(match, distance)
@@ -83,7 +83,7 @@ class AnnoyRetrieve(object):
         return match_result
 
     def _retrieve_article(self, article: str, topk: int = 10) -> List[Tuple[int, float]]:
-        query_embedding = self.encoder.encode(article)
+        query_embedding = self.encoder.get_article_encoding(article)
         matches, distances = self.annoy_article.get_nns_by_vector(
             query_embedding, topk, include_distances=True)
         match_result = [(match, distance)
@@ -92,7 +92,7 @@ class AnnoyRetrieve(object):
         return match_result
 
     def _retrieve_paragraph(self, paragraph: str, topk: int = 10) -> List[Tuple[int, int, float]]:
-        query_embedding = self.encoder.encode(paragraph)
+        query_embedding = self.encoder.get_paragraph_encoding(paragraph)
         matches, distances = self.annoy_paragraph.get_nns_by_vector(
             query_embedding, topk, include_distances=True)
         match_result = [(match, self.paragraph2articleid.get(str(match)), distance)
@@ -101,7 +101,7 @@ class AnnoyRetrieve(object):
         return match_result
 
     def _retrieve_sentence(self, sentence: str, topk: int = 10) -> List[Tuple[int, int, float]]:
-        query_embedding = self.encoder.encode(sentence)
+        query_embedding = self.encoder.get_sentence_encoding(sentence)
         matches, distances = self.annoy_sentence.get_nns_by_vector(
             query_embedding, topk, include_distances=True)
         match_result = [(match, self.sentence2articleid.get(str(match)), distance)
