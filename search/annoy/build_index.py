@@ -44,8 +44,10 @@ class AnnoyIndexBuilder(object):
 
         self.paragraph_id = 0
         self.paragraph2articleid = {}
+        self.paragraph_id2structure = {}
         self.sentence_id = 0
         self.sentence2articleid = {}
+        self.sentence_id2structure = {}
 
     def load_index(self, annoy_dir: str = None):
         """
@@ -70,6 +72,8 @@ class AnnoyIndexBuilder(object):
             self.paragraph_id = data['paragraph_id']
             self.sentence2articleid = data['sentence2articleid']
             self.paragraph2articleid = data['paragraph2articleid']
+            self.sentence_id2structure = data['sentence_id2structure']
+            self.paragraph_id2structure = data['paragraph_id2structure']
 
     def add_index_for_article(self, index: int, article: Dict[str, str]):
         """
@@ -98,21 +102,23 @@ class AnnoyIndexBuilder(object):
                     parsed_struct)
                 self.annoy_article.add_item(index, article_embedding)
             elif granularity == 'paragraph':
-                for paragraph in parsed_struct:
+                for i, paragraph in enumerate(parsed_struct):
                     paragraph_embedding = self.encoder.get_paragraph_encoding(
                         paragraph)
                     self.annoy_paragraph.add_item(
                         self.paragraph_id, paragraph_embedding)
                     self.paragraph2articleid[self.paragraph_id] = index
+                    self.paragraph_id2structure[self.paragraph_id] = (i, )
                     self.paragraph_id += 1
             elif granularity == 'sentence':
-                for paragraph in parsed_struct:
-                    for sentence in paragraph:
+                for i, paragraph in enumerate(parsed_struct):
+                    for j, sentence in enumerate(paragraph):
                         sentence_embedding = self.encoder.get_sentence_encoding(
                             sentence)
                         self.annoy_sentence.add_item(
                             self.sentence_id, sentence_embedding)
                         self.sentence2articleid[self.sentence_id] = index
+                        self.sentence_id2structure[self.sentence_id] = (i, j)
                         self.sentence_id += 1
 
     def build_index(self, tree_num: int = 10):
@@ -143,6 +149,8 @@ class AnnoyIndexBuilder(object):
                 'paragraph_id': self.paragraph_id,
                 'sentence2articleid': self.sentence2articleid,
                 'paragraph2articleid': self.paragraph2articleid,
+                'sentence_id2structure': self.sentence_id2structure,
+                'paragraph_id2structure': self.paragraph_id2structure,
             }, fp)
 
 

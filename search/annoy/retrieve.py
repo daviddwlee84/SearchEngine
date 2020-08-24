@@ -51,6 +51,8 @@ class AnnoyRetrieve(object):
 
         self.paragraph2articleid = {}
         self.sentence2articleid = {}
+        self.paragraph_id2structure = {}
+        self.sentence_id2structure = {}
 
     def load_index(self, annoy_dir: str = None):
         """
@@ -74,6 +76,8 @@ class AnnoyRetrieve(object):
             # note that json need to store key in "string"
             self.sentence2articleid = data['sentence2articleid']
             self.paragraph2articleid = data['paragraph2articleid']
+            self.sentence_id2structure = data['sentence_id2structure']
+            self.paragraph_id2structure = data['paragraph_id2structure']
 
     # ===== data management ===== #
 
@@ -128,55 +132,79 @@ class AnnoyRetrieve(object):
         match_result.sort(key=lambda x: x[1])
         return match_result
 
-    def _retrieve_paragraph_ids(self, paragraph: str, topk: int = 10) -> List[Tuple[int, int, float]]:
+    def _retrieve_paragraph_ids(self, paragraph: str, topk: int = 10) -> List[Tuple[int, float]]:
         query_embedding = self.encoder.get_paragraph_encoding(paragraph)
         matches, distances = self.annoy_paragraph.get_nns_by_vector(
             query_embedding, topk, include_distances=True)
-        match_result = [(self.paragraph2articleid.get(str(match)), match, distance)
+        match_result = [(match, distance)
                         for match, distance in zip(matches, distances)]
         match_result.sort(key=lambda x: x[-1])
         return match_result
 
-    def _retrieve_sentence_ids(self, sentence: str, topk: int = 10) -> List[Tuple[int, int, float]]:
+    def _retrieve_sentence_ids(self, sentence: str, topk: int = 10) -> List[Tuple[int, float]]:
         query_embedding = self.encoder.get_sentence_encoding(sentence)
         matches, distances = self.annoy_sentence.get_nns_by_vector(
             query_embedding, topk, include_distances=True)
-        match_result = [(self.sentence2articleid.get(str(match)), match, distance)
+        match_result = [(match, distance)
                         for match, distance in zip(matches, distances)]
         match_result.sort(key=lambda x: x[-1])
         return match_result
 
     # ===== Query and Retrieve OBJECT and Score ===== #
 
-    def _ids_score_to_doc_score(self, match_result: List[tuple]) -> List[tuple]:
-        """
-        TODO: map sentence & paragraph id back to data
-        """
-        doc_result = [
-            (self.get_document_by_id(result[0]), *result[1:])
-            for result in match_result
-        ]
+    def search_title(self, title: str, topk: int = 10, include_ori_doc: bool = False) -> List[Tuple[Dict[str, str], float]]:
+        match_result = self._retrieve_title_ids(title, topk)
+        doc_result = []
+        for article_id, score in match_result:
+            original_doc_dict = self.get_document_by_id(article_id)
+            title = original_doc_dict['title']
+            if include_ori_doc:
+                doc_result.append((original_doc_dict, title, score))
+            else:
+                doc_result.append((title, score))
         return doc_result
 
-    def search_title(self, title: str, topk: int = 10) -> List[Tuple[Dict[str, str], float]]:
-        match_result = self._retrieve_title_ids(title, topk)
-        match_result = self._ids_score_to_doc_score(match_result)
-        return match_result
-
-    def search_article(self, article: str, topk: int = 10) -> List[Tuple[Dict[str, str], float]]:
+    def search_article(self, article: str, topk: int = 10, include_ori_doc: bool = False) -> List[Tuple[Dict[str, str], float]]:
         match_result = self._retrieve_article_ids(article, topk)
-        self._ids_score_to_doc_score(match_result)
-        return match_result
+        doc_result = []
+        for article_id, score in match_result:
+            original_doc_dict = self.get_document_by_id(article_id)
+            article = original_doc_dict['content']
+            if include_ori_doc:
+                doc_result.append((original_doc_dict, article, score))
+            else:
+                doc_result.append((article, score))
+        return doc_result
 
-    def search_paragraph(self, paragraph: str, topk: int = 10) -> List[Tuple[Dict[str, str], float]]:
+    def search_paragraph(self, paragraph: str, topk: int = 10, include_ori_doc: bool = False) -> List[Tuple[Dict[str, str], float]]:
         match_result = self._retrieve_paragraph_ids(paragraph, topk)
-        self._ids_score_to_doc_score(match_result)
-        return match_result
+        doc_result = []
+        for para_id, score in match_result:
+            article_id = self.paragraph2articleid.get(str(para_id))
+            i, = self.paragraph_id2structure.get(str(para_id))
+            original_doc_dict = self.get_document_by_id(article_id)
+            paragraph = self.article_manager.parse(
+                original_doc_dict['content'], 'paragraph')[i]
+            if include_ori_doc:
+                doc_result.append((original_doc_dict, paragraph, score))
+            else:
+                doc_result.append((paragraph, score))
+        return doc_result
 
-    def search_sentence(self, sentence: str, topk: int = 10) -> List[Tuple[Dict[str, str], float]]:
+    def search_sentence(self, sentence: str, topk: int = 10, include_ori_doc: bool = False) -> List[Tuple[Dict[str, str], float]]:
         match_result = self._retrieve_sentence_ids(sentence, topk)
-        self._ids_score_to_doc_score(match_result)
-        return match_result
+        doc_result = []
+        for sent_id, score in match_result:
+            article_id = self.sentence2articleid.get(str(sent_id))
+            i, j = self.sentence_id2structure.get(str(sent_id))
+            original_doc_dict = self.get_document_by_id(article_id)
+            paragraph = self.article_manager.parse(
+                original_doc_dict['content'], 'sentence')[i][j]
+            if include_ori_doc:
+                doc_result.append((original_doc_dict, paragraph, score))
+            else:
+                doc_result.append((paragraph, score))
+        return doc_result
 
 
 def _test_retrieve_ids():
@@ -214,10 +242,23 @@ def _test_crawled_data(load_from: str):
     elif load_from == 'es':
         retrieve.load_reference_data('news', 'es')
 
-    print(retrieve.search_title('Tiktok'))
+    test_article = """报道称，作为TikTok美国员工的代表，技术项目经理帕特里克·瑞安告诉《国会山报》，这起诉讼将聚焦宪法规定的正当程序权。瑞安坚称，是否允许该企业在美国运营，并不是总统一时兴起就可以决定的。瑞安补充说，当特朗普的禁令下个月生效时，约有1500名TikTok及其母公司字节跳动的员工面临着拿不到工资的风险。
+报道提到，瑞安在众筹平台发起了一项筹款活动，用以聘请律师向美国政府发起挑战。瑞安在筹款界面上写道：“请帮助TikTok的员工为保住我们的薪水而战”。截至目前，筹款金额已经超过1.3万美元。
+《国会山报》称，黑石法律集团(Blackstone Law Group)和著名互联网维权律师迈克·戈德温将代表TikTok的美国员工提起诉讼。他们预计于本周晚些时候向联邦法院提起诉讼。律师们表示，他们正在考虑在纽约南区、北加州或华盛顿特区提起诉讼。
+连日来，美国政府不断向TikTok施压。
+特朗普当地时间8月6日签署行政令，称移动应用程序抖音海外版（TikTok）和微信对美国国家安全构成威胁，将在45天后禁止任何美国个人或实体与抖音海外版(TikTok)、微信及其中国母公司进行任何交易。
+特朗普当地时间8月14日签署另一行政令，要求字节跳动在90天内剥离任何使TikTok能够在美国运营的有形和无形资产，并拿出已经用烂了的理由给字节跳动2017年收购美国视频应用Musical.ly定性——存在“危害国家安全”风险。
+中国已多次就TikTok问题表明立场。中国外交部发言人赵立坚8月17日在例行记者会上称，TikTok几乎满足了美方提出的所有要求，但仍逃不过美国一些人出于强盗逻辑和政治私利对其采取的巧取豪夺。美国一些政客非要无中生有、罗织罪名，置TikTok于死地。赵立坚称，这种霸凌行径是对美方一贯标榜的市场经济和公平竞争原则的公然否定，违反国际贸易规则，肆意侵害他国利益，也必将损害美国自身利益。我们敦促美方立即纠正错误，停止诬蔑抹黑中国，停止无理打压别国企业。
+"""
+
+    print(retrieve.search_title('Tiktok美国'))
+    # print(retrieve.search_article(test_article))
+    # print(retrieve.search_paragraph(
+    #     '8月17日，广东佛山顺德区杏坛镇一名老人被一只狗身上的牵引绳绊倒在地，经送医抢救无效去世，此事件经曝光后引发热议。8月18日晚，广东佛山市顺德区杏坛镇政府进行情况通报，初步判断该事件为意外事件。这一判断或许出乎很多人的意料。'))
+    print(retrieve.search_sentence('承担法律责任，付出一定的侵权代价'))
 
 
 if __name__ == "__main__":
     # _test_retrieve_ids()
-    # _test_crawled_data('es')
-    _test_crawled_data('tsv')
+    _test_crawled_data('es')
+    # _test_crawled_data('tsv')
