@@ -2,7 +2,6 @@ from typing import Dict, List
 from elasticsearch import Elasticsearch
 import pandas as pd
 import os
-import json
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -17,12 +16,8 @@ HOST = 'http://stcadmin-dgx-station-002:9200'
 
 class ESIndexBuilder(object):
     """
-    Build index for different granularities, objects
-
-    1. Title
-    2. Content (entire article)
-    3. Paragraph
-    4. Sentence
+    Build index for entire article details (i.e. online version pandas?!)
+    (Currently no preprocessing before uploading to server)
     """
 
     def __init__(self, index: str, host: str = HOST):

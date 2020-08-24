@@ -80,6 +80,8 @@ Ubuntu/Linux
 
 > http://stcadmin-dgx-station-002:5601
 
+* [How To Return All Documents From An Index In Elasticsearch | ObjectRocket](https://kb.objectrocket.com/elasticsearch/how-to-return-all-documents-from-an-index-in-elasticsearch)
+
 ### Client
 
 Python
