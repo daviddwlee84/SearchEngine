@@ -1,6 +1,7 @@
 from typing import List, Tuple
 from elasticsearch import Elasticsearch
 import os
+from itertools import product
 from datetime import datetime, timedelta
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
@@ -50,22 +51,22 @@ class ESAPIWrapper(object):
         res = self.es.search(index=self.es_index, size=size, body=query_body)
         return [(item['_source'], item['_score']) for item in res['hits']['hits']]
 
-    def search_keyword(self, keyword: str, keyword_fields: List[str] = ['title', 'content'], size: int = 10):
+    def search_keywords(self, keywords: List[str], keyword_fields: List[str] = ['title', 'content'], size: int = 10):
         body = {
             'query': {
                 'bool': {
                     'should': [
                         {'match': {
                             field: keyword
-                        }} for field in keyword_fields
+                        }} for field, keyword in product(keyword_fields, keywords)
                     ]
                 }
             }
         }
         return self._perform_query(body, size)
 
-    def search_keyword_in_date_range(self, keyword: str, start_date: datetime, end_date: datetime,
-                                     keyword_fields: List[str] = ['title', 'content'], date_field: str = 'date', size: int = 10):
+    def search_keywords_in_date_range(self, keywords: List[str], start_date: datetime, end_date: datetime,
+                                      keyword_fields: List[str] = ['title', 'content'], date_field: str = 'date', size: int = 10):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html
         https://www.elastic.co/guide/en/elasticsearch/reference/master/sql-functions-datetime.html
@@ -92,71 +93,49 @@ class ESAPIWrapper(object):
                     'should': [
                         {'match': {
                             field: keyword
-                        }} for field in keyword_fields
+                        }} for field, keyword in product(keyword_fields, keywords)
                     ],
                 }
             }
         }
         return self._perform_query(body, size)
 
-    def search_keyword_in_date_within(self, keyword: str, current_date: datetime, within_days: int = 10,
-                                      keyword_fields: List[str] = ['title', 'content'], date_field: str = 'date', size: int = 10):
+    def search_keywords_in_date_within(self, keywords: List[str], current_date: datetime, within_days: int = 10,
+                                       keyword_fields: List[str] = ['title', 'content'], date_field: str = 'date', size: int = 10):
         """
         https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math
         http://www.pressthered.com/adding_dates_and_times_in_python/
         https://www.programiz.com/python-programming/datetime/strftime
 
         https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html
+
+        TODO: use Date Math instead
         """
         start_date = current_date - timedelta(days=within_days // 2)
         end_date = current_date + timedelta(days=within_days // 2)
-        return self.search_keyword_in_date_range(keyword=keyword, keyword_fields=keyword_fields,
-                                                 date_field=date_field, size=size,
-                                                 start_date=start_date,
-                                                 end_date=end_date)
-
-        # Date Math has bug....
-        # print(current_date.strftime("%Y-%m-%d"'T'"%H:%M:%S"))
-        # body = {
-        #     'query': {
-        #         'bool': {
-        #             'filter': [{
-        #                 'range': {
-        #                     'date': {
-        #                         # 'gte': current_date.strftime("%Y-%m-%d"'T'"%H:%M:%S") + f'-{within_days//2}d/d',
-        #                         # 'lte': current_date.strftime("%Y-%m-%d"'T'"%H:%M:%S") + f'+{within_days//2}d/d',
-        #                         'from': current_date.strftime("%Y-%m-%d"'T'"%H:%M:%S") + f'-{within_days//2}d/d',
-        #                         'to': current_date.strftime("%Y-%m-%d"'T'"%H:%M:%S") + f'+{within_days//2}d/d',
-        #                     }
-        #                 }
-        #             }],
-        #             'should': [
-        #                 {'match': {
-        #                     field: keyword
-        #                 }} for field in keyword_fields
-        #             ],
-        #         }
-        #     }
-        # }
-        # return self._perform_query(body, size)
+        return self.search_keywords_in_date_range(keywords=keywords, keyword_fields=keyword_fields,
+                                                  date_field=date_field, size=size,
+                                                  start_date=start_date,
+                                                  end_date=end_date)
 
 
 if __name__ == "__main__":
     es = ESAPIWrapper('news')
     # es.get_all(print_all=True)
-    # print(es.search_keyword('TikTok'))
-    # print(es.search_keyword('老人'))
+    # print(es.search_keywords(['TikTok']))
+    # print(es.search_keywords(['老人']))
+    print(es.search_keywords(['TikTok', '美国', '特朗普']))
 
     # print([(result['title'], score)
-    #        for result, score in es.search_keyword('TikTok')])
+    #        for result, score in es.search_keywords(['TikTok'])])
     # print([(result['title'], score)
-    #        for result, score in es.search_keyword('老人')])
+    #        for result, score in es.search_keywords(['老人'])])
 
-    # print(es.search_keyword_in_date_range('TikTok', start_date=datetime(
+    # print(es.search_keywords_in_date_range('TikTok', start_date=datetime(
     #     year=2020, month=8, day=19), end_date=datetime.now()))
 
-    print(es.search_keyword_in_date_within('TikTok', current_date=datetime(
-        year=2020, month=8, day=19), within_days=10))
+    # print(es.search_keywords_in_date_within(['TikTok'], current_date=datetime(
+    #     year=2020, month=8, day=19), within_days=10))
 
 # GET news/_search
 # {
