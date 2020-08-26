@@ -34,7 +34,7 @@ import os
 import sys
 
 curr_dir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append('../tools/Crawler/crawler')
+sys.path.append(os.path.join(curr_dir, '../tools/Crawler'))
 from crawler.manager.combine_results import CombineResult
 
 
