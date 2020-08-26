@@ -12,7 +12,7 @@ if __name__ == "__main__":
 from search.annoy.representation import Encoder
 from search.elastic_search.retrieve import ESAPIWrapper
 from utils.article_loader import ArticleManager
-from utils.tsv_loader import load_tsv
+from utils.data_loader import load_tsv, load_json
 
 
 class AnnoyRetrieve(object):
@@ -94,10 +94,8 @@ class AnnoyRetrieve(object):
         elif load_from == 'es':
             self.es = ESAPIWrapper(index=path_or_index)
         elif load_from == 'json':
-            """
-            TODO: add load json method in utils (maybe rename to load data....)
-            """
-            raise NotImplementedError()
+            self.data = load_json(path_or_index, simplify=True,
+                                  simplify_columns=['title', 'content'])
 
     def get_document_by_id(self, idx: int):
         assert self.load_from is not None, 'Please load data first.'
@@ -107,10 +105,8 @@ class AnnoyRetrieve(object):
         elif self.load_from == 'es':
             return self.es.get_idx(idx)
         elif self.load_from == 'json':
-            """
-            TODO: add load json method in utils (maybe rename to load data....)
-            """
-            raise NotImplementedError()
+            # TODO: maybe we want to keep it json way (currently we load json as pandas Dataframe)
+            return dict(self.data.loc[idx])
 
     # ===== Query and Retrieve Index and Score ===== #
 
@@ -198,12 +194,63 @@ class AnnoyRetrieve(object):
             article_id = self.sentence2articleid.get(str(sent_id))
             i, j = self.sentence_id2structure.get(str(sent_id))
             original_doc_dict = self.get_document_by_id(article_id)
-            paragraph = self.article_manager.parse(
+            sentence = self.article_manager.parse(
                 original_doc_dict['content'], 'sentence')[i][j]
+            if include_ori_doc:
+                doc_result.append((original_doc_dict, sentence, score))
+            else:
+                doc_result.append((sentence, score))
+        return doc_result
+
+    def search_paragraph_with_sentence(self, sentence: str, topk: int = 10, include_ori_doc: bool = False,
+                                       remove_duplicate: bool = True, score_average: bool = False):
+        """
+        Retrieve the paragraph where the sentence located
+        """
+        match_result = self._retrieve_sentence_ids(sentence, topk)
+        doc_result = []
+        for sent_id, score in match_result:
+            article_id = self.sentence2articleid.get(str(sent_id))
+            i, _ = self.sentence_id2structure.get(str(sent_id))
+            original_doc_dict = self.get_document_by_id(article_id)
+            paragraph = self.article_manager.parse(
+                original_doc_dict['content'], 'paragraph')[i]
             if include_ori_doc:
                 doc_result.append((original_doc_dict, paragraph, score))
             else:
                 doc_result.append((paragraph, score))
+
+        # paragraph: [original_doc_dict, score1, score2, ...]
+        para_score_dict = {}
+        if remove_duplicate:
+            # TODO: this can be done with just compare paragraph id from the beginning
+            for result in doc_result:
+                paragraph = result[-2]
+                score = result[-1]
+                if paragraph not in para_score_dict:
+                    # first one
+                    if len(result) == 3:
+                        para_score_dict[paragraph] = [result[0], score]
+                    else:
+                        para_score_dict[paragraph] = [None, score]
+                else:
+                    para_score_dict[paragraph].append(score)
+
+            doc_result = []
+            for paragraph, value in para_score_dict.items():
+                original_doc_dict = value[0]
+                scores = value[1:]
+                if score_average:
+                    avg_score = sum(scores) / len(scores)
+                else:
+                    avg_score = sum(scores)
+                if include_ori_doc:
+                    doc_result.append(
+                        (original_doc_dict, paragraph, avg_score))
+                else:
+                    doc_result.append((paragraph, avg_score))
+            doc_result.sort(key=lambda x: x[-1])
+
         return doc_result
 
 
@@ -258,7 +305,33 @@ def _test_crawled_data(load_from: str):
     print(retrieve.search_sentence('承担法律责任，付出一定的侵权代价'))
 
 
+def _gen_test_json(test_file: str = os.path.join(curr_dir, 'test.json')):
+    from datetime import datetime
+    data = {
+        'title': '华人运通与微软达成战略合作，高合汽车落地全球首个主动式人工智能伙伴HiPhiGo',
+        'date': str(datetime.now()),
+        'content': """今日，华人运通与微软在2020世界人工智能大会云端峰会（WAIC 2020）上宣布双方达成战略合作，依托微软小冰人工智能技术，共同在高合汽车上落地全球首个主动式人工智能伙伴HiPhiGo，致力于从智慧车机的前装设计阶段开始提供整体解决方案，为用户提供更好的交通出行体验，促进人工智能与交通行业的创新融合发展。双方正在探讨成立联合智能计算实验室，以智能汽车为载体，在智捷交通等多个领域展开深度合作。通过人工智能等前瞻技术研发和应用，推动智慧出行和社会可持续发展。 华人运通董事长丁磊与微软（亚洲）互联网工程院院长王永东在“2020世界人工智能大会云端峰会”上共同宣布了双方的战略合作的相关内容。依托微软小冰人工智能技术，微软与华人运通的合作致力于从智慧车机的前装设计阶段开始提供整体解决方案，致力于为用户提供更好的交通出行体验，促进人工智能与交通行业的创新融合发展。 王永东表示，人工智能在各领域的应用落地，离不开相关企业和科技公司的携手努力。微软在计算机语音、计算机视觉、自然语言处理、搜索引擎和知识图谱方面均有深厚的技术积累。例如在微软的语音合成领域（Text to speech），依托深度神经网络，可合成出自然而富有情感、足以媲美人类的声音，使用户与人工智能的交互流畅愉悦。微软希望每一项技术能力，都不是高堂上远的秀科技，而能落实为人人可亲自使用的实际产品。华人运通在设计、工程开发、智能系统等方面拥有丰富的经验，一直走在创新前列，在车路城一体化发展方面有着全面布局和成功实践。此次微软与华人运通的合作，使人工智能技术有了切实可行的落地场景，得以转化为真实有效的生产力，发挥更大的应用价值。微软与华人运通将携手推进人工智能等新兴科技在汽车智慧乃至智慧出行领域的广泛应用，为产业升级和社会可持续发展注入新的活力。 丁磊表示，华人运通从城市可持续发展的层面出发，提出“智能汽车、智捷交通、智慧城市”的战略，实现车更聪明，路更互联，城更智慧的人类未来出行愿景。此次合作是顶级人工智能企业和智能汽车公司的强强联手，是AI多项领先技术在全球汽车行业的首次量产落地，在世界范围内具有技术领先性。
+
+    在2020世界人工智能大会云端峰会上，王永东与丁磊就“如何以人工智能助力车路城一体化发展”进行了精彩的对话。 伴随智能科技与通信技术的革新，汽车正在向超级移动智能终端进化，成为人们智慧生活的重要载体。基于自主研发的开放式电子电气架构，华人运通打造了具备推理能力，能主动感知用户、帮助用户的主动式人工智能伙伴 HiPhiGo，并在高合汽车首款量产车上实现落地，树立智能汽车的全球新标杆。 从首款智能汽车高合HiPhi 有条不紊地推进，到全球首条车路协同自动驾驶智能化城市道路示范项目在盐城开通试运行，再到全球首个车路城一体化5G无人驾驶交通运营样板在上海张江未来公园成功落地，华人运通以人为本，从人性化需求出发，通过人性化智慧，打造“智能汽车、智捷交通、智慧城市“。目前，“三智”战略各项业务稳步推进。高合首款量产车HiPhi将于2020年底实现小批量试生产，2021年上市交付。 人工智能是21世纪技术变革的驱动力，也是产业变革、经济社会发展的驱动力。未来，微软将与华人运通开展更深入的合作，通过人工智能技术为用户带来更多创新体验，共同推动交通产业进步和出行方式进步，使每个人都能从人工智能技术的发展中获益。"""
+    }
+    with open(test_file, 'w', encoding='utf8') as fp:
+        json.dump(data, fp, ensure_ascii=False)
+        fp.write('\n')
+
+
+def _test_get_para_by_sent():
+    retrieve = AnnoyRetrieve()
+    retrieve.load_index()
+    _gen_test_json()
+    retrieve.load_reference_data(os.path.join(curr_dir, 'test.json'), 'json')
+    print(retrieve.search_paragraph_with_sentence(
+        '在2020世界人工智能大会云端峰会上，王永东与丁磊就“如何以人工智能助力车路城一体化发展”进行了精彩的对话。', remove_duplicate=False))
+    print(retrieve.search_paragraph_with_sentence(
+        '在2020世界人工智能大会云端峰会上，王永东与丁磊就“如何以人工智能助力车路城一体化发展”进行了精彩的对话。', remove_duplicate=True))
+
+
 if __name__ == "__main__":
     # _test_retrieve_ids()
-    _test_crawled_data('es')
+    # _test_crawled_data('es')
     # _test_crawled_data('tsv')
+    _test_get_para_by_sent()

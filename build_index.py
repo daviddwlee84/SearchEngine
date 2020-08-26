@@ -42,7 +42,7 @@ class IndexBuilder(object):
 
 
 if __name__ == "__main__":
-    from utils.tsv_loader import load_tsv
+    from utils.data_loader import load_tsv
     builder = IndexBuilder()
     df = load_tsv('data/all_news_new.tsv')
     builder.build_indices_for_pandas_object(df)

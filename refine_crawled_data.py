@@ -1,5 +1,5 @@
 from mining.keyword_extractor import KeywordExtractor
-from utils.tsv_loader import load_tsv
+from utils.data_loader import load_tsv
 import pandas as pd
 from tqdm import tqdm
 

@@ -33,6 +33,7 @@ class ArticleManager(object):
 
             for sentence in sentences:
                 if sentence:
+                    sentence = sentence.strip()
                     if add_period_back:
                         sentence += '。'
                     article[-1].append(sentence)
