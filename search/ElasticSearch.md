@@ -108,6 +108,15 @@ An index is a logical namespace which maps to one or more primary shards and can
 * [Built-in analyzer reference | Elasticsearch Reference [7.9] | Elastic](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html)
 * [Field data types | Elasticsearch Reference [7.9] | Elastic](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html)
 
+Index batch
+
+```py
+# https://github.com/jtibshirani/text-embeddings/blob/master/src/main.py
+
+from elasticsearch.helpers import bulk
+bulk(client, requests)
+```
+
 ### Detail
 
 Index

@@ -31,7 +31,19 @@ Using the [k-d tree](https://en.wikipedia.org/wiki/K-d_tree) in KNN
 
 ## Sentence Similarity / Embedding
 
+> How to use in Elastic Search
+>
+> * [**Text similarity search in Elasticsearch using vector fields | Elastic Blog**](https://www.elastic.co/blog/text-similarity-search-with-vectors-in-elasticsearch)
+> * [**jtibshirani/text-embeddings**](https://github.com/jtibshirani/text-embeddings)
+>
+> This is a current limitation of vector similarity in Elasticsearch — vectors can be used for scoring documents, but not in the initial retrieval step. Support for retrieval based on vector similarity is an important area of ongoing work.
+
 ### BERT Embedding + Cosine Similarity
+
+* [InferSent](https://arxiv.org/abs/1705.02364)
+* [Universal Sentence Encoder](https://arxiv.org/abs/1803.11175)
+* [ELMo](https://arxiv.org/abs/1802.05365)
+* [BERT](https://arxiv.org/abs/1810.04805)
 
 #### bert as service
 

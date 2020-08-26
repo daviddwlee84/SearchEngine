@@ -30,7 +30,7 @@ class ESIndexBuilder(object):
         """
         TODO: maybe sent a warning message
         """
-        self.es.indices.delete(self.es_index)
+        self.es.indices.delete(self.es_index, ignore=[404])
 
     def clear_old_types(self, to_del: List[str], del_all: bool = False):
         pass  # TODO
@@ -65,6 +65,12 @@ class ESIndexBuilder(object):
             print('Elastic search add index fail:', str(e))
             # TypeError("Unable to serialize NaT (type: <class 'pandas._libs.tslibs.nattype.NaTType'>)
 
+    def finish_indexing(self):
+        """
+        Make sure to call this after you done with all your `add_index_for_article`
+        """
+        self.es.indices.refresh(index=self.es_index)
+
 
 if __name__ == "__main__":
     from datetime import datetime
@@ -91,7 +97,8 @@ if __name__ == "__main__":
     res = builder.es.get(index='test-index', id=idx)
     print(res['_source'])
 
-    builder.es.indices.refresh(index='test-index')
+    # builder.es.indices.refresh(index='test-index')
+    builder.finish_indexing()  # equivalent
 
     res = builder.es.search(
         index='test-index', body={'query': {'match_all': {}}})

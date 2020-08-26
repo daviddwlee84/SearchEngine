@@ -11,6 +11,7 @@ if __name__ == "__main__":
     sys.path.append(os.path.join(curr_dir, '../..'))
 
 # from utils.article_loader import ArticleManager
+from search.representation import Encoder
 
 HOST = 'http://stcadmin-dgx-station-002:9200'
 
@@ -20,12 +21,14 @@ class ESAPIWrapper(object):
     Basically wrapping ES API for some pre-define requests
 
     TODO: make the condition become "append" style
+
+    TODO (pending): try this [Text similarity search in Elasticsearch using vector fields | Elastic Blog](https://www.elastic.co/blog/text-similarity-search-with-vectors-in-elasticsearch)
     """
 
     def __init__(self, index: str, host: str = HOST):
         self.es = Elasticsearch(host)
-        self.es.indices.refresh(index=index)
         self.es_index = index
+        self.encoder = Encoder()  # currently unused
 
     def get_idx(self, idx: int):
         """
@@ -117,6 +120,33 @@ class ESAPIWrapper(object):
                                                   date_field=date_field, size=size,
                                                   start_date=start_date,
                                                   end_date=end_date)
+
+    # def search_with_embedding(self, string: str, mode: str = 'sentence'):
+    #     """
+    #     mode
+
+    #     * title => search title only
+    #     * article => search content
+    #     * sentence: TODO maybe we have to create sentence index in ES?!
+    #     * paragraph: TODO maybe we have to create paragraph index in ES?!
+
+    #     TODO: https://github.com/jtibshirani/text-embeddings/blob/master/src/main.py
+
+    #     This is a current limitation of vector similarity in Elasticsearch — vectors can be used for scoring documents, but not in the initial retrieval step. Support for retrieval based on vector similarity is an important area of ongoing work.
+
+    #     (Might need to wait for future version....)
+    #     """
+    #     query_vector
+
+    #     script_query = {
+    #         'script_score': {
+    #             'query': {'match_all': {}},
+    #             'script': {
+    #                 'source': 'cosineSimilarity(params.query_vector, doc["title_vector"]) + 1.0',
+    #                 'params': {'query_vector': query_vector}
+    #             }
+    #         }
+    #     }
 
 
 if __name__ == "__main__":

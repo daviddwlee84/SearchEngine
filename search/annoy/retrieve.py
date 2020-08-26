@@ -9,7 +9,7 @@ if __name__ == "__main__":
     import sys
     sys.path.append(os.path.join(curr_dir, '../..'))
 
-from search.annoy.representation import Encoder
+from search.representation import Encoder
 from search.elastic_search.retrieve import ESAPIWrapper
 from utils.article_loader import ArticleManager
 from utils.data_loader import load_tsv, load_json
