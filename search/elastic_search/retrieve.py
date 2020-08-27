@@ -13,8 +13,6 @@ if __name__ == "__main__":
 # from utils.article_loader import ArticleManager
 from search.representation import Encoder
 
-HOST = 'http://stcadmin-dgx-station-002:9200'
-
 
 class ESAPIWrapper(object):
     """
@@ -25,7 +23,7 @@ class ESAPIWrapper(object):
     TODO (pending): try this [Text similarity search in Elasticsearch using vector fields | Elastic Blog](https://www.elastic.co/blog/text-similarity-search-with-vectors-in-elasticsearch)
     """
 
-    def __init__(self, index: str, host: str = HOST):
+    def __init__(self, host: str, index: str):
         self.es = Elasticsearch(host)
         self.es_index = index
         self.encoder = Encoder()  # currently unused
@@ -150,7 +148,7 @@ class ESAPIWrapper(object):
 
 
 if __name__ == "__main__":
-    es = ESAPIWrapper('news')
+    es = ESAPIWrapper('http://stcadmin-dgx-station-002:9200', 'news')
     # es.get_all(print_all=True)
     # print(es.search_keywords(['TikTok']))
     # print(es.search_keywords(['老人']))

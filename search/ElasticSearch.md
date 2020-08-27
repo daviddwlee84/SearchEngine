@@ -43,6 +43,8 @@ docker container rm es
 >
 > `docker: Error response from daemon: create ./esdata: "./esdata" includes invalid characters for a local volume name, only "[a-zA-Z0-9][a-zA-Z0-9_.-]" are allowed. If you intended to pass a host directory, use absolute path.`
 
+* [Running the Elastic Stack on Docker | Getting Started [7.9] | Elastic](https://www.elastic.co/guide/en/elastic-stack-get-started/current/get-started-docker.html) - docker compose with Kibana
+
 #### Test running
 
 Submit a `_cat/nodes` request to see that the nodes are up and running

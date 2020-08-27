@@ -81,7 +81,7 @@ class AnnoyRetrieve(object):
 
     # ===== data management ===== #
 
-    def load_reference_data(self, path_or_index: str, load_from: str = 'tsv'):
+    def load_reference_data(self, path_or_index: str, load_from: str = 'tsv', es_host: str = 'http://stcadmin-dgx-station-002:9200'):
         """
         TODO: maybe support json as well
         """
@@ -92,7 +92,7 @@ class AnnoyRetrieve(object):
         if load_from == 'tsv':
             self.data = load_tsv(path_or_index)
         elif load_from == 'es':
-            self.es = ESAPIWrapper(index=path_or_index)
+            self.es = ESAPIWrapper(host=es_host, index=path_or_index)
         elif load_from == 'json':
             self.data = load_json(path_or_index, simplify=True,
                                   simplify_columns=['title', 'content'])
