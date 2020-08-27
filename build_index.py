@@ -7,11 +7,11 @@ from tqdm import tqdm
 
 
 class IndexBuilder(object):
-    def __init__(self, annoy_dir: str = 'index',
-                 es_index: str = 'news'):
+    def __init__(self, annoy_dir: str,
+                 es_index: str, es_host: str):
         self.ann_builder = AnnoyIndexBuilder()
         self.ann_dir = annoy_dir
-        self.es_builder = ESIndexBuilder(index=es_index)
+        self.es_builder = ESIndexBuilder(host=es_host, index=es_index)
 
     def initialize(self):
         """
@@ -40,9 +40,12 @@ class IndexBuilder(object):
         self.ann_builder.build_index()
         self.ann_builder.save_index(self.ann_dir)
 
+        self.es_builder.finish_indexing()
+
 
 if __name__ == "__main__":
     from utils.data_loader import load_tsv
-    builder = IndexBuilder()
+    builder = IndexBuilder(
+        annoy_dir='index', es_host='http://stcadmin-dgx-station-002:9200', es_index='news')
     df = load_tsv('data/all_news_new.tsv')
     builder.build_indices_for_pandas_object(df)
