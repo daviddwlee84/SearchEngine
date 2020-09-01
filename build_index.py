@@ -84,7 +84,7 @@ if __name__ == "__main__":
         df = load_tsv(args.file)
     elif args.file.endswith('.json'):
         from crawler.manager.combine_results import CombineResult
-        commb = CombineResult(simplify=True)
+        comb = CombineResult(simplify=True)
         df = comb.load_from_json(args.file)
     else:
         print('Invalid file name', args.file)
