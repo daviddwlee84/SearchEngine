@@ -27,6 +27,8 @@ Single node
 # https://www.tecmint.com/run-docker-container-in-background-detached-mode/
 # run in detached mode (`-d`)
 docker run --name es -d -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.9.0
+# mount data (this will somehow make the docker shutdown...)
+# docker run --name es -d -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -v $(pwd)/es_data:/usr/share/elasticsearch/data docker.elastic.co/elasticsearch/elasticsearch:7.9.0
 
 # attach
 docker attach es
@@ -142,12 +144,26 @@ Body
 
 * [Compound queries | Elasticsearch Reference [7.9] | Elastic](https://www.elastic.co/guide/en/elasticsearch/reference/current/compound-queries.html)
 
-## Chinese
-
-Stop Words
-
-* [elasticsearch 中文停用词设置 - 简书](https://www.jianshu.com/p/f869e7997eaa)
-
 ## Data
 
 * [Docker bind elasticsearch volume in app folder - Stack Overflow](https://stackoverflow.com/questions/52373356/docker-bind-elasticsearch-volume-in-app-folder)
+
+## Chinese
+
+> * [**Elasticsearch入门篇-基本概念&中文分词器IK - 掘金**](https://juejin.im/post/6844904117668708360)
+
+Stop words is important!!
+
+* [Smart Chinese Analysis Plugin | Elasticsearch Plugins and Integrations [7.9] | Elastic](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-smartcn.html)
+* [How to Search Chinese, Japanese, and Korean Text with Elasticsearch 6.2 - Part 1: Analyzers | Elastic Blog](https://www.elastic.co/blog/how-to-search-ch-jp-kr-part-1)
+* [你们好 - Elasticsearch and the Chinese language | mimacom](https://blog.mimacom.com/elasticsearch-chinese-language/)
+
+## Plugin
+
+* smartcn
+  * [elasticsearch/plugins/analysis-smartcn at master · elastic/elasticsearch](https://github.com/elastic/elasticsearch/tree/master/plugins/analysis-smartcn)
+  * [elastic/elasticsearch-analysis-smartcn: Smart Chinese Analysis Plugin for Elasticsearch](https://github.com/elastic/elasticsearch-analysis-smartcn) - old
+* ik
+  * [medcl/elasticsearch-analysis-ik: The IK Analysis plugin integrates Lucene IK analyzer into elasticsearch, support customized dictionary.](https://github.com/medcl/elasticsearch-analysis-ik)
+  * [elasticsearch 中文停用词设置 - 简书](https://www.jianshu.com/p/f869e7997eaa)
+  * [ElasticSearch中文分词 - 简书](https://www.jianshu.com/p/bb89ad7a7f7d)

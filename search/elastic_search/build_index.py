@@ -20,9 +20,10 @@ class ESIndexBuilder(object):
     (Currently no preprocessing before uploading to server)
     """
 
-    def __init__(self, index: str, host: str = HOST):
+    def __init__(self, index: str, host: str = HOST, analyzer: str = 'smartcn'):
         self.es = Elasticsearch(host)
         self.es_index = index
+        self.es_analyzer = analyzer  # default "standard"
 
         # self.article_manager = ArticleManager()
 
@@ -57,6 +58,8 @@ class ESIndexBuilder(object):
                 if type(value) not in types_to_skip and not pd.isna(value)}
         # data = article
 
+        data['analyzer'] = self.es_analyzer
+
         try:
             self.es.index(index=self.es_index, id=index, body=data)
         except Exception as e:
@@ -89,7 +92,7 @@ if __name__ == "__main__":
     idx = 0
 
     builder = ESIndexBuilder(index='test-index')
-    builder.add_index_for_article(idx, test_article, 'test')
+    builder.add_index_for_article(idx, test_article)
 
     # Test
 

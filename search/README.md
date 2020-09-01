@@ -7,6 +7,16 @@
 1. Upload data to elastic search
 2. Search with its API
 
+> You can try in Kibana's `Management > Dev Tools`
+
+#### Kibana Visulaization
+
+1. Goto `Management > Stack Management` then `Kibana > Index Patterns`
+2. `Create index pattern` for your index (default `news` here)
+3. Goto `Kibana > Visualize` create your visualization
+
+> * [Elasticsearch - Tag Clouds - Tutorialspoint](https://www.tutorialspoint.com/elasticsearch/elasticsearch_tag_clouds.htm)
+
 ### ANN: Approximate Nearest Neighborhood search
 
 Matrix multiplication between Query and Document and return in sorted order.
