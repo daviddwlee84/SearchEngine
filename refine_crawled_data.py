@@ -6,6 +6,8 @@ from tqdm import tqdm
 
 class DataRefine(object):
     """
+    (deprecated) we don't need this step currently
+
     This only need to execute once (deal with the "just crawled data")
 
     This will skip the processed data

@@ -49,22 +49,40 @@ class AnnoyIndexBuilder(object):
         self.sentence2articleid = {}
         self.sentence_id2structure = {}
 
-    def load_index(self, annoy_dir: str = None):
+    def remove_old_files(self, annoy_dir: str = None):
         """
-        To continuous build index from last checkpoint use this function
-        (not sure if it's possible...)
+        Maybe this is not necessary (because we can overwrite the file directly)
         """
         if not annoy_dir:
             annoy_dir = curr_dir
 
-        self.annoy_title.load(os.path.join(
-            annoy_dir, f'{self.encoder_model}_title.ann'))
-        self.annoy_article.load(os.path.join(
-            annoy_dir, f'{self.encoder_model}_article.ann'))
-        self.annoy_paragraph.load(os.path.join(
-            annoy_dir, f'{self.encoder_model}_paragraph.ann'))
-        self.annoy_sentence.load(os.path.join(
-            annoy_dir, f'{self.encoder_model}_sentence.ann'))
+        for item in os.listdir(annoy_dir):
+            if item.endswith('.ann') or item.endswith('.json') or item.endswith('.pkl'):
+                os.remove(os.path.join(annoy_dir, item))
+
+    def recover_from_embedding(self, annoy_dir: str = None):
+        """
+        TODO Store embedding mapped with index
+
+        To continuous build index from last checkpoint use this function
+        (not sure if it's possible...) => Exception: You can't add an item to a loaded index
+        https://github.com/spotify/annoy/issues/411
+        TODO: the only way is to store the embedding/raw vectors separately and rebuild again.
+
+        TODO: make annoy_dir an __init__ argument
+        and attempt to load from the beginning
+        return True or False to show if it success
+        """
+        raise NotImplementedError()
+
+        if not annoy_dir:
+            annoy_dir = curr_dir
+
+        # TODO
+        os.path.join(annoy_dir, f'title_embedding_map.pkl')
+        os.path.join(annoy_dir, f'article_embedding_map.pkl')
+        os.path.join(annoy_dir, f'paragraph_embedding_map.pkl')
+        os.path.join(annoy_dir, f'sentence_embedding_map.pkl')
 
         with open(os.path.join(annoy_dir, f'mapping.json'), 'r') as fp:
             data = json.load(fp)
@@ -77,6 +95,8 @@ class AnnoyIndexBuilder(object):
 
     def add_index_for_article(self, index: int, article: Dict[str, str]):
         """
+        Make sure index is unique!!
+
         article is a dict
         {
             title: "",

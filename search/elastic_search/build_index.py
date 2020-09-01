@@ -35,7 +35,7 @@ class ESIndexBuilder(object):
     def clear_old_types(self, to_del: List[str], del_all: bool = False):
         pass  # TODO
 
-    def add_index_for_article(self, index: int, article: Dict[str, str], doc_type: str = 'raw'):
+    def add_index_for_article(self, index: int, article: Dict[str, str]):
         """
         article is a dict
         {
@@ -58,8 +58,7 @@ class ESIndexBuilder(object):
         # data = article
 
         try:
-            self.es.index(index=self.es_index, doc_type=doc_type,
-                          id=index, body=data)
+            self.es.index(index=self.es_index, id=index, body=data)
         except Exception as e:
             # https://stackoverflow.com/questions/4690600/python-exception-message-capturing
             print('Elastic search add index fail:', str(e))
