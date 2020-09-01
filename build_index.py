@@ -14,12 +14,20 @@ from search.elastic_search.build_index import ESIndexBuilder
 
 class IndexBuilder(object):
     def __init__(self, annoy_dir: str,
-                 es_index: str, es_host: str):
-        # Note, currently ANN can only be build from scratch (can't add index after load)
-        # unless we store embedding
-        self.ann_builder = AnnoyIndexBuilder()
-        self.ann_dir = annoy_dir
-        self.es_builder = ESIndexBuilder(host=es_host, index=es_index)
+                 es_index: str, es_host: str,
+                 ignore_ann: bool = False, ignore_es: bool = False):
+
+        self.do_ann = not ignore_ann
+        self.do_es = not ignore_es
+
+        if not ignore_ann:
+            # Note, currently ANN can only be build from scratch (can't add index after load)
+            # unless we store embedding
+            self.ann_builder = AnnoyIndexBuilder()
+            self.ann_dir = annoy_dir
+
+        if not ignore_es:
+            self.es_builder = ESIndexBuilder(host=es_host, index=es_index)
 
     def initialize(self):
         """
@@ -28,8 +36,10 @@ class IndexBuilder(object):
 
         https://stackoverflow.com/questions/47087741/use-tqdm-progress-bar-with-pandas
         """
-        self.ann_builder.remove_old_files(self.ann_dir)
-        self.es_builder.clear_old_index()
+        if self.do_ann:
+            self.ann_builder.remove_old_files(self.ann_dir)
+        if self.do_es:
+            self.es_builder.clear_old_index()
 
     def build_indices_for_pandas_object(self, df: pd.DataFrame):
         """
@@ -37,20 +47,22 @@ class IndexBuilder(object):
         (currently just ignore the date if NaT in elastic search index builder)
         """
         for i, row in tqdm(df.iterrows(), total=len(df)):
-
-            self.ann_builder.add_index_for_article(index=i, article=row)
-            self.es_builder.add_index_for_article(
-                index=i, article=dict(row))
+            if self.do_ann:
+                self.ann_builder.add_index_for_article(index=i, article=row)
+            if self.do_es:
+                self.es_builder.add_index_for_article(
+                    index=i, article=dict(row))
 
     def build_indices_for_json_file(self, json_file: str):
         # TODO: load stuff and convert the data type, this is important if the memory is limited
         pass
 
     def finish(self):
-        self.ann_builder.build_index()
-        self.ann_builder.save_index(self.ann_dir)
-
-        self.es_builder.finish_indexing()
+        if self.do_ann:
+            self.ann_builder.build_index()
+            self.ann_builder.save_index(self.ann_dir)
+        if self.do_es:
+            self.es_builder.finish_indexing()
 
 
 def parse_args():
@@ -65,6 +77,10 @@ def parse_args():
                         help='File to be parse and add')
     parser.add_argument('--initialize', action='store_true',
                         help='Initialize elastic search records (be careful!) and remove annoy model (not necessary).')
+    parser.add_argument('--ignore-ann', action='store_true',
+                        help='Do not built for ANN.')
+    parser.add_argument('--ignore-es', action='store_true',
+                        help='Do not built for ES.')
     return parser.parse_args()
 
 
@@ -74,7 +90,8 @@ if __name__ == "__main__":
     args = parse_args()
 
     builder = IndexBuilder(
-        annoy_dir=args.annoy_dir, es_host=args.es_host, es_index=args.es_index)
+        annoy_dir=args.annoy_dir, es_host=args.es_host, es_index=args.es_index,
+        ignore_ann=args.ignore_ann, ignore_es=args.ignore_es)
 
     if args.initialize:
         print('Initializing checkpoints and elastic search data.')
