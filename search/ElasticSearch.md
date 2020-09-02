@@ -154,9 +154,62 @@ Body
 
 Stop words is important!!
 
+### Analyzer
+
+* [Elasticsearch Analyzer - qbit snap - SegmentFault 思否](https://segmentfault.com/a/1190000021122658)
 * [Smart Chinese Analysis Plugin | Elasticsearch Plugins and Integrations [7.9] | Elastic](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-smartcn.html)
-* [How to Search Chinese, Japanese, and Korean Text with Elasticsearch 6.2 - Part 1: Analyzers | Elastic Blog](https://www.elastic.co/blog/how-to-search-ch-jp-kr-part-1)
+  * [smartcn_stop token filter | Elasticsearch Plugins and Integrations [7.9] | Elastic](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-smartcn_stop.html)
 * [你们好 - Elasticsearch and the Chinese language | mimacom](https://blog.mimacom.com/elasticsearch-chinese-language/)
+* [Efficient Chinese Search with Elasticsearch - SitePoint](https://www.sitepoint.com/efficient-chinese-search-elasticsearch/)
+* How to Search Chinese, Japanese, and Korean Text with Elasticsearch
+  * [How to Search Chinese, Japanese, and Korean Text with Elasticsearch 6.2 - Part 1: Analyzers | Elastic Blog](https://www.elastic.co/blog/how-to-search-ch-jp-kr-part-1)
+  * [How to Search Chinese, Japanese, and Korean Text with Elasticsearch 6.2 - Part 2: Multi-fields | Elastic Blog](https://www.elastic.co/blog/how-to-search-ch-jp-kr-part-2)
+  * [How to Search Chinese, Japanese, and Korean Text with Elasticsearch 6.2 - Part 3: Language Detector | Elastic Blog](https://www.elastic.co/blog/how-to-search-ch-jp-kr-part-3)
+
+```txt
+GET _analyze
+{
+  "text": ["电脑是新的"],
+  "analyzer": "smartcn"
+}
+
+{
+  "tokens" : [
+    {
+      "token" : "电脑",
+      "start_offset" : 0,
+      "end_offset" : 2,
+      "type" : "word",
+      "position" : 0
+    },
+    {
+      "token" : "是",
+      "start_offset" : 2,
+      "end_offset" : 3,
+      "type" : "word",
+      "position" : 1
+    },
+    {
+      "token" : "新",
+      "start_offset" : 3,
+      "end_offset" : 4,
+      "type" : "word",
+      "position" : 2
+    },
+    {
+      "token" : "的",
+      "start_offset" : 4,
+      "end_offset" : 5,
+      "type" : "word",
+      "position" : 3
+    }
+  ]
+}
+```
+
+### Search Analyzer
+
+* [elasticsearch - Elastic search- search_analyzer vs index_analyzer - Stack Overflow](https://stackoverflow.com/questions/15923480/elastic-search-search-analyzer-vs-index-analyzer)
 
 ## Plugin
 
@@ -167,3 +220,36 @@ Stop words is important!!
   * [medcl/elasticsearch-analysis-ik: The IK Analysis plugin integrates Lucene IK analyzer into elasticsearch, support customized dictionary.](https://github.com/medcl/elasticsearch-analysis-ik)
   * [elasticsearch 中文停用词设置 - 简书](https://www.jianshu.com/p/f869e7997eaa)
   * [ElasticSearch中文分词 - 简书](https://www.jianshu.com/p/bb89ad7a7f7d)
+
+---
+
+## Trouble Shooting
+
+```txt
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@     WARNING: plugin requires additional permissions     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+* java.net.SocketPermission * connect,resolve
+See http://docs.oracle.com/javase/8/docs/technotes/guides/security/permissions.html
+for descriptions of what these permissions allow and the associated risks.
+
+Exception in thread "main" java.lang.IllegalStateException: unable to read from standard input; is standard input open and a tty attached?
+        at org.elasticsearch.cli.Terminal$SystemTerminal.readText(Terminal.java:273)
+        at org.elasticsearch.plugins.PluginSecurity.prompt(PluginSecurity.java:74)
+        at org.elasticsearch.plugins.PluginSecurity.confirmPolicyExceptions(PluginSecurity.java:67)
+        at org.elasticsearch.plugins.InstallPluginCommand.installPlugin(InstallPluginCommand.java:875)
+        at org.elasticsearch.plugins.InstallPluginCommand.execute(InstallPluginCommand.java:254)
+        at org.elasticsearch.plugins.InstallPluginCommand.execute(InstallPluginCommand.java:224)
+        at org.elasticsearch.cli.EnvironmentAwareCommand.execute(EnvironmentAwareCommand.java:86)
+        at org.elasticsearch.cli.Command.mainWithoutErrorHandling(Command.java:127)
+        at org.elasticsearch.cli.MultiCommand.execute(MultiCommand.java:91)
+        at org.elasticsearch.cli.Command.mainWithoutErrorHandling(Command.java:127)
+        at org.elasticsearch.cli.Command.main(Command.java:90)
+        at org.elasticsearch.plugins.PluginCli.main(PluginCli.java:47)
+        at org.elasticsearch.cli.Command.main(Command.java:90)
+        at org.elasticsearch.plugins.PluginCli.main(PluginCli.java:47)
+```
+
+* [plugin requires additional permissions · Issue #2220 · elastic/cloud-on-k8s](https://github.com/elastic/cloud-on-k8s/issues/2220)
+* [Init containers for plugin downloads | Elastic Cloud on Kubernetes [1.2] | Elastic](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-init-containers-plugin-downloads.html)
+  * `--batch`

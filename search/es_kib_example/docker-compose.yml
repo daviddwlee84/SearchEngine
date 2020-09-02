@@ -1,7 +1,10 @@
 version: "3.8"
 services:
   es001:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.0
+    # image: docker.elastic.co/elasticsearch/elasticsearch:7.9.0
+    # haven't test yet
+    build:
+      context: ./es
     container_name: es001
     environment:
       discovery.type: single-node

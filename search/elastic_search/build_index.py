@@ -20,10 +20,9 @@ class ESIndexBuilder(object):
     (Currently no preprocessing before uploading to server)
     """
 
-    def __init__(self, index: str, host: str = HOST, analyzer: str = 'smartcn'):
+    def __init__(self, index: str, host: str = HOST):
         self.es = Elasticsearch(host)
         self.es_index = index
-        self.es_analyzer = analyzer  # default "standard"
 
         # self.article_manager = ArticleManager()
 
@@ -33,8 +32,35 @@ class ESIndexBuilder(object):
         """
         self.es.indices.delete(self.es_index, ignore=[404])
 
-    def clear_old_types(self, to_del: List[str], del_all: bool = False):
-        pass  # TODO
+    def create_index(self, cn_analyzer: str = 'ik_max_word', cn_search_analyzer: str = 'ik_smart',
+                     columns_to_analyze: List[str] = ['title', 'content']):
+        """
+        Create index with Chinese analyzer mapping (default standard)
+
+        (actually the analyzer setting can also be set when using it, but this global setting is more convenient)
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-create-index.html
+
+        analyzer
+
+        * smartcn: official one
+        * ik_max_word: For term query (n-gram combination)
+        * ik_smart: Phrase search (just word segment)
+        """
+        mapping = {
+            'mappings': {
+                'properties': {
+                    col: {
+                        'type': 'text',
+                        'analyzer': cn_analyzer,
+                        'search_analyzer': cn_search_analyzer
+                    }
+                    for col in columns_to_analyze
+                }
+            }
+
+        }
+        self.es.indices.create(index=self.es_index, body=mapping)
 
     def add_index_for_article(self, index: int, article: Dict[str, str]):
         """
@@ -57,8 +83,6 @@ class ESIndexBuilder(object):
                 for key, value in article.items()
                 if type(value) not in types_to_skip and not pd.isna(value)}
         # data = article
-
-        data['analyzer'] = self.es_analyzer
 
         try:
             self.es.index(index=self.es_index, id=index, body=data)
@@ -92,6 +116,8 @@ if __name__ == "__main__":
     idx = 0
 
     builder = ESIndexBuilder(index='test-index')
+    builder.clear_old_index()
+    builder.create_index()
     builder.add_index_for_article(idx, test_article)
 
     # Test

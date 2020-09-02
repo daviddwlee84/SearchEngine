@@ -40,6 +40,7 @@ class IndexBuilder(object):
             self.ann_builder.remove_old_files(self.ann_dir)
         if self.do_es:
             self.es_builder.clear_old_index()
+            self.es_builder.create_index()
 
     def build_indices_for_pandas_object(self, df: pd.DataFrame):
         """

@@ -11,7 +11,7 @@ if __name__ == "__main__":
     sys.path.append(os.path.join(curr_dir, '../..'))
 
 # from utils.article_loader import ArticleManager
-from search.representation import Encoder
+# from search.representation import Encoder
 
 
 class ESAPIWrapper(object):
@@ -26,7 +26,7 @@ class ESAPIWrapper(object):
     def __init__(self, host: str, index: str):
         self.es = Elasticsearch(host)
         self.es_index = index
-        self.encoder = Encoder()  # currently unused
+        # self.encoder = Encoder()  # currently unused
 
     def get_idx(self, idx: int):
         """
@@ -82,7 +82,7 @@ class ESAPIWrapper(object):
                 'bool': {
                     'filter': [{
                         'range': {
-                            'date': {
+                            date_field: {
                                 # seems these are the same
                                 # 'gte': start_date,
                                 # 'lte': end_date,
