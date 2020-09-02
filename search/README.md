@@ -72,3 +72,17 @@ Using the [k-d tree](https://en.wikipedia.org/wiki/K-d_tree) in KNN
 
 * [Measure Search Relevance using NDCG - Know More | T/DG Blog - Digital Thoughts](https://blog.thedigitalgroup.com/measuring-search-relevance-using-ndcg#:~:text=Normalized%20Discounted%20Cumulative%20Gain%20%28NDCG,than%20irrelevant%20results%20%28cumulative%20gain%29)
 * [Discounted cumulative gain - Wikipedia](https://en.wikipedia.org/wiki/Discounted_cumulative_gain)
+
+---
+
+## TODO
+
+* [ ] Preserve embeddings for ANN rebuild
+* [ ] More embedding method
+* [ ] Refine the representation of long paragraph
+  * [ ] Extractive summarization
+  * [ ] Average sentence embedding
+* [ ] Store embedding in ES too (and try cosine similarity score)
+* [ ] Build index with (parallel) Bulk (reduce network latency)
+  * [Helpers — Elasticsearch 8.0.0 documentation](https://elasticsearch-py.readthedocs.io/en/master/helpers.html)
+  * [Bulk API | Elasticsearch Reference [7.9] | Elastic](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html)

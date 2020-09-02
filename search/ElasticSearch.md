@@ -207,6 +207,268 @@ GET _analyze
 }
 ```
 
+```sh
+# Without custom dict
+
+curl -H "Content-Type: application/json" 'http://stcadmin-dgx-station-002:9200/_analyze?pretty=true' -d '{"text":"华人运通与微软达成战略合作，高合汽车落地全球首个主动式人工智能伙伴HiPhiGo", "analyzer":"ik_max_word"}'
+
+{
+  "tokens" : [
+    {
+      "token" : "华人",
+      "start_offset" : 0,
+      "end_offset" : 2,
+      "type" : "CN_WORD",
+      "position" : 0
+    },
+    {
+      "token" : "运通",
+      "start_offset" : 2,
+      "end_offset" : 4,
+      "type" : "CN_WORD",
+      "position" : 1
+    },
+    {
+      "token" : "与",
+      "start_offset" : 4,
+      "end_offset" : 5,
+      "type" : "CN_CHAR",
+      "position" : 2
+    },
+    {
+      "token" : "微软",
+      "start_offset" : 5,
+      "end_offset" : 7,
+      "type" : "CN_WORD",
+      "position" : 3
+    },
+    {
+      "token" : "达成",
+      "start_offset" : 7,
+      "end_offset" : 9,
+      "type" : "CN_WORD",
+      "position" : 4
+    },
+    {
+      "token" : "战略",
+      "start_offset" : 9,
+      "end_offset" : 11,
+      "type" : "CN_WORD",
+      "position" : 5
+    },
+    {
+      "token" : "合作",
+      "start_offset" : 11,
+      "end_offset" : 13,
+      "type" : "CN_WORD",
+      "position" : 6
+    },
+    {
+      "token" : "高",
+      "start_offset" : 14,
+      "end_offset" : 15,
+      "type" : "CN_CHAR",
+      "position" : 7
+    },
+    {
+      "token" : "合",
+      "start_offset" : 15,
+      "end_offset" : 16,
+      "type" : "CN_CHAR",
+      "position" : 8
+    },
+    {
+      "token" : "汽车",
+      "start_offset" : 16,
+      "end_offset" : 18,
+      "type" : "CN_WORD",
+      "position" : 9
+    },
+    {
+      "token" : "落地",
+      "start_offset" : 18,
+      "end_offset" : 20,
+      "type" : "CN_WORD",
+      "position" : 10
+    },
+    {
+      "token" : "全球",
+      "start_offset" : 20,
+      "end_offset" : 22,
+      "type" : "CN_WORD",
+      "position" : 11
+    },
+    {
+      "token" : "首个",
+      "start_offset" : 22,
+      "end_offset" : 24,
+      "type" : "CN_WORD",
+      "position" : 12
+    },
+    {
+      "token" : "主动",
+      "start_offset" : 24,
+      "end_offset" : 26,
+      "type" : "CN_WORD",
+      "position" : 13
+    },
+    {
+      "token" : "式",
+      "start_offset" : 26,
+      "end_offset" : 27,
+      "type" : "CN_CHAR",
+      "position" : 14
+    },
+    {
+      "token" : "人工智能",
+      "start_offset" : 27,
+      "end_offset" : 31,
+      "type" : "CN_WORD",
+      "position" : 15
+    },
+    {
+      "token" : "人工",
+      "start_offset" : 27,
+      "end_offset" : 29,
+      "type" : "CN_WORD",
+      "position" : 16
+    },
+    {
+      "token" : "智能",
+      "start_offset" : 29,
+      "end_offset" : 31,
+      "type" : "CN_WORD",
+      "position" : 17
+    },
+    {
+      "token" : "伙伴",
+      "start_offset" : 31,
+      "end_offset" : 33,
+      "type" : "CN_WORD",
+      "position" : 18
+    },
+    {
+      "token" : "hiphigo",
+      "start_offset" : 33,
+      "end_offset" : 40,
+      "type" : "ENGLISH",
+      "position" : 19
+    }
+  ]
+}
+```
+
+> `{"type": "server", "timestamp": "2020-09-02T07:34:23,474Z", "level": "INFO", "component": "o.w.a.d.Dictionary", "cluster.name": "docker-cluster", "node.name": "d95bcd88dabd", "message": "try load config from /usr/share/elasticsearch/config/analysis-ik/IKAnalyzer.cfg.xml", "cluster.uuid": "BE2Qd6b6RgSObjUzJmW_UQ", "node.id": "nXxcYypkQXyt7QqY26ptDw"  }`
+
+```sh
+# After add custom dict
+
+curl -H "Content-Type: application/json" 'http://stcadmin-dgx-station-002:9200/_analyze?pretty=true' -d '{"text":"华人运通与微软达成战略合作，高合汽车落地全球首个主动式人工智能伙伴HiPhiGo", "analyzer":"ik_smart"}'
+
+{
+  "tokens" : [
+    {
+      "token" : "华人运通",
+      "start_offset" : 0,
+      "end_offset" : 4,
+      "type" : "CN_WORD",
+      "position" : 0
+    },
+    {
+      "token" : "微软",
+      "start_offset" : 5,
+      "end_offset" : 7,
+      "type" : "CN_WORD",
+      "position" : 1
+    },
+    {
+      "token" : "达成",
+      "start_offset" : 7,
+      "end_offset" : 9,
+      "type" : "CN_WORD",
+      "position" : 2
+    },
+    {
+      "token" : "战略",
+      "start_offset" : 9,
+      "end_offset" : 11,
+      "type" : "CN_WORD",
+      "position" : 3
+    },
+    {
+      "token" : "合作",
+      "start_offset" : 11,
+      "end_offset" : 13,
+      "type" : "CN_WORD",
+      "position" : 4
+    },
+    {
+      "token" : "高合汽车",
+      "start_offset" : 14,
+      "end_offset" : 18,
+      "type" : "CN_WORD",
+      "position" : 5
+    },
+    {
+      "token" : "落地",
+      "start_offset" : 18,
+      "end_offset" : 20,
+      "type" : "CN_WORD",
+      "position" : 6
+    },
+    {
+      "token" : "全球",
+      "start_offset" : 20,
+      "end_offset" : 22,
+      "type" : "CN_WORD",
+      "position" : 7
+    },
+    {
+      "token" : "首个",
+      "start_offset" : 22,
+      "end_offset" : 24,
+      "type" : "CN_WORD",
+      "position" : 8
+    },
+    {
+      "token" : "主动",
+      "start_offset" : 24,
+      "end_offset" : 26,
+      "type" : "CN_WORD",
+      "position" : 9
+    },
+    {
+      "token" : "式",
+      "start_offset" : 26,
+      "end_offset" : 27,
+      "type" : "CN_CHAR",
+      "position" : 10
+    },
+    {
+      "token" : "人工智能",
+      "start_offset" : 27,
+      "end_offset" : 31,
+      "type" : "CN_WORD",
+      "position" : 11
+    },
+    {
+      "token" : "伙伴",
+      "start_offset" : 31,
+      "end_offset" : 33,
+      "type" : "CN_WORD",
+      "position" : 12
+    },
+    {
+      "token" : "hiphigo",
+      "start_offset" : 33,
+      "end_offset" : 40,
+      "type" : "ENGLISH",
+      "position" : 13
+    }
+  ]
+}
+```
+
 ### Search Analyzer
 
 * [elasticsearch - Elastic search- search_analyzer vs index_analyzer - Stack Overflow](https://stackoverflow.com/questions/15923480/elastic-search-search-analyzer-vs-index-analyzer)
@@ -220,6 +482,11 @@ GET _analyze
   * [medcl/elasticsearch-analysis-ik: The IK Analysis plugin integrates Lucene IK analyzer into elasticsearch, support customized dictionary.](https://github.com/medcl/elasticsearch-analysis-ik)
   * [elasticsearch 中文停用词设置 - 简书](https://www.jianshu.com/p/f869e7997eaa)
   * [ElasticSearch中文分词 - 简书](https://www.jianshu.com/p/bb89ad7a7f7d)
+  * [安裝IK分詞器及自定義擴充套件分詞 - IT閱讀](https://www.itread01.com/content/1546859108.html)
+
+Dictionary
+
+* [samejack/sc-dictionary: 繁體+簡體中文詞庫字典檔](https://github.com/samejack/sc-dictionary)
 
 ---
 

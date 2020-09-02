@@ -84,6 +84,8 @@ def parse_args():
                         help='Do not built for ES.')
     return parser.parse_args()
 
+# python3 SearchEngine/build_index.py --file parsed_tencent.tsv --ignore-ann --initialize
+
 
 if __name__ == "__main__":
     from utils.data_loader import load_tsv
