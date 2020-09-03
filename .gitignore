@@ -3,6 +3,7 @@ search/annoy/*.ann
 search/annoy/*.json
 index/*.ann
 index/*.json
+tools/RetroIndex/*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
