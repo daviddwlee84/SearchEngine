@@ -1,8 +1,8 @@
-jieba
-tqdm
-numpy
-torch
-transformers
-sentence-transformers
-annoy
-elasticsearch
+jieba==0.42.1
+tqdm==4.57.0
+numpy==1.19.5
+torch==1.7.1
+transformers==4.3.2
+sentence-transformers==0.4.1.2
+annoy==1.17.0
+elasticsearch==7.11.0
